@@ -25,6 +25,19 @@ Router.route('/user/signup')
   .all(expressJoi(valSchema.Login))
   .post(UserController.Signup);
 
+//testing below
+  Router.route('/user/fb/signup')
+  // .all(expressJoi(valSchema.Login))
+  .get(UserController.FBSignup);
+  // .get(passport.authenticate('facebook', { scope: ['email']}));
+  
+  Router.route('/user/fb/signup/return')
+  .get(passport.authenticate('facebook', { failureRedirect: '/user/fb/signup' }),
+  function(req, res) {
+    res.status(200).send({message:'you created a user!'});
+  });
+
+
 //created a test route to check if authenticated when logged in/out
 Router.route('/test')
   .get((req, res) => {

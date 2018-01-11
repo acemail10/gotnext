@@ -109,7 +109,52 @@ UserController = {
 
       })(req, res, next);
     }
+  },
+
+  FBSignup: (req, res, next) => {
+    // if (req.user) {
+    //   res.status(200).send({ message: 'user is already logged in, let them know' });
+    // } else {
+      passport.authenticate('facebook', { scope: ['email']}, function (err, user, info) {
+        if (err) {
+          return next(err); // will generate a 500 error
+        }
+        if (!user) {
+          return res.status(200).send({
+            errMsg: info.errMsg
+          });
+        }
+        req.login(user, function (err) {
+
+          let payload = {
+            id: user.id
+          }
+
+          let options = {
+            expiresIn: 86400 //24 hours
+          }
+
+          console.log('user login payload:', payload)
+
+          var token = jwt.sign(payload, JWT_SECRET, options);
+
+          if (err) {
+            console.error('token err', err);
+            return next(err);
+          }
+
+          // send a json object with token as property. on client side, i set the token onto window.localStorage
+          return res.json({
+            sucesss: true,
+            message: 'sign-up successful! Established a login session with token',
+            token: token
+          });
+        });
+      })(req, res, next);
+    // }
   }
+
+
 };
 
 module.exports = UserController;

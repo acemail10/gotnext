@@ -4,6 +4,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // this is a helper middleware function that will check if a token exists/is not expired.
 
 var tokenExists = function (req, res, next) {
+  console.log('meow meow');
   // check header or url parameters or post parameters for token
   // we are set up to have the token stored in req.body.token
   var token = req.token || req.body.token || req.query.token || req.headers.token || req.headers['x-access-token'];

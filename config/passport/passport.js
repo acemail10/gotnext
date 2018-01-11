@@ -1,7 +1,11 @@
 const passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var FacebookStrategy = require('passport-facebook').Strategy;
 const bcrypt = require('bcrypt');
 const {User} = require('../../db/models');
+const CLIENT_ID = process.env.FACEBOOK_CLIENT_ID;
+const CLIENT_SECRET = process.env.FACEBOOK_CLIENT_SECRET;
+
 
 passport.serializeUser(function (user, done) {
   console.log('this is user', user);
@@ -101,6 +105,52 @@ passport.use('local-login', new LocalStrategy({
         });
     });
   }));
+
+  passport.use(new FacebookStrategy({
+    clientID: CLIENT_ID, //'abc', //process.env.CLIENT_ID,
+    clientSecret: CLIENT_SECRET, //'abc', //process.env.CLIENT_SECRET,
+    callbackURL: 'http://localhost:3000/api/user/fb/signup/return', // 'http://localhost:3000/login/facebook/return'
+    profileFields: ['emails']
+  },
+  // function(accessToken, refreshToken, profile, cb) {
+  function(accessToken, refreshToken, profile, done) {
+    process.nextTick(function () {
+      console.log('this is profile', profile);
+      User.findOrCreate({
+          where: {
+            username: profile.emails[0].value
+          },
+          defaults: {
+            password: null
+          }
+        })
+        .spread((result, created) => {
+          if (!created) {
+            console.log('Email already taken');
+            return done(null, false, {
+              errMsg: 'email already exists'
+            });
+            // res.status(200).send(created);
+          } else {
+            console.log('Login successful!', result.dataValues);
+            return done(null, result.dataValues);
+            // res.status(200).send(result);
+          }
+        });
+    });
+    // In this example, the user's Facebook profile is supplied as the user
+    // record.  In a production-quality application, the Facebook profile should
+    // be associated with a user record in the application's database, which
+    // allows for account linking and authentication with other identity
+    // providers.
+    return cb(null, profile);
+  }));
+
+
+
+
+
+
 
 
 // console.log('before passport use');

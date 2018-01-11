@@ -131,7 +131,7 @@ class SignUp extends Component {
         Bill@gmail.com | 123abc
         <button onClick={this.onCreateUser2}>Create User: Bill</button>
         <br/>
-
+        <a href="/api/user/fb/signup">Log In with Facebook</a>
 
         <br/>
 
